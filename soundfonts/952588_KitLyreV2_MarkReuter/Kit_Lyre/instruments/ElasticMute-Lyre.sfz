@@ -1,0 +1,9 @@
+//sfz instrument
+//2020-12-29
+<control>
+<global>
+
+<group>
+ampeg_attack=0
+ampeg_release=2
+<region> sample=../samples/original/Lyre-elastic-mute-comp.wav lokey=36 hikey=84 pitch_keycenter=74 seq_length=1 seq_position=1 lovel=0 hivel=127

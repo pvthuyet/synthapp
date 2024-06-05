@@ -1,0 +1,10 @@
+//sfz instrument
+//2020-12-29
+//Prepared lyre - paper mute
+<control>
+<global>
+
+<group>
+ampeg_attack=0
+ampeg_release=4
+<region> sample=../samples/original/Lyre-papermute-comp.wav lokey=24 hikey=72 pitch_keycenter=64 seq_length=1 seq_position=1 lovel=0 hivel=127

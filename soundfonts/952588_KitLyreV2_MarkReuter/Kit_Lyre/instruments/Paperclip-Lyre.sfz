@@ -1,0 +1,10 @@
+//sfz instrument
+//2020-12-29
+//Prepared Lyre - paperclip
+<control>
+<global>
+
+<group>
+ampeg_attack=0
+ampeg_release=4
+<region> sample=../samples/original/Paperclip-comp.wav lokey=36 hikey=72 pitch_keycenter=57 seq_length=1 seq_position=1 lovel=0 hivel=127

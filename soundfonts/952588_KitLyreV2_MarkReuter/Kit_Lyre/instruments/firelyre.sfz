@@ -1,0 +1,41 @@
+//sfz instrument
+//2020-12-27
+//firelyre
+<control>
+<global>
+
+<group>
+ampeg_attack=0
+ampeg_release=3
+
+ 
+ 
+<region> sample=../samples/original/lyre-E5-01-comp.wav lokey=76 hikey=84 pitch_keycenter=76 seq_length=2 seq_position=1 lovel=0 hivel=127
+<region> sample=../samples/original/lyre-E5-02-comp.wav lokey=76 hikey=84 pitch_keycenter=76 seq_length=2 seq_position=2 lovel=0 hivel=127
+
+<region> sample=../samples/original/lyre-D5-01-comp.wav lokey=73 hikey=75 pitch_keycenter=74 seq_length=2 seq_position=1 lovel=0 hivel=127
+<region> sample=../samples/original/lyre-D5-02-comp.wav lokey=73 hikey=75 pitch_keycenter=74 seq_length=2 seq_position=2 lovel=0 hivel=127
+
+<region> sample=../samples/original/lyre-B4-01-comp.wav lokey=70 hikey=72 pitch_keycenter=71 seq_length=2 seq_position=1 lovel=0 hivel=127
+<region> sample=../samples/original/lyre-B4-02-comp.wav lokey=70 hikey=72 pitch_keycenter=71 seq_length=2 seq_position=2 lovel=0 hivel=127
+
+
+<region> sample=../samples/original/lyre-A4-01-comp.wav lokey=68 hikey=69 pitch_keycenter=69 seq_length=2 seq_position=1 lovel=0 hivel=127
+<region> sample=../samples/original/lyre-A4-02-comp.wav lokey=68 hikey=69 pitch_keycenter=69 seq_length=2 seq_position=2 lovel=0 hivel=127
+
+
+<region> sample=../samples/original/lyre-G4-01-comp.wav lokey=66 hikey=67 pitch_keycenter=67 seq_length=2 seq_position=1 lovel=0 hivel=127
+<region> sample=../samples/original/lyre-G4-02-comp.wav lokey=66 hikey=67 pitch_keycenter=67 seq_length=2 seq_position=2 lovel=0 hivel=127
+
+
+<region> sample=../samples/original/lyre-E4-01-comp.wav lokey=63 hikey=65 pitch_keycenter=64 seq_length=2 seq_position=1 lovel=0 hivel=127
+<region> sample=../samples/original/lyre-E4-02-comp.wav lokey=63 hikey=65 pitch_keycenter=64 seq_length=2 seq_position=2 lovel=0 hivel=127
+
+
+<region> sample=../samples/original/lyre-D4-02-comp.wav lokey=24 hikey=62 pitch_keycenter=62 seq_length=2 seq_position=1 lovel=0 hivel=127
+<region> sample=../samples/original/lyre-D4-01-comp.wav lokey=24 hikey=62 pitch_keycenter=62 seq_length=2 seq_position=2 lovel=0 hivel=127
+
+
+
+
+

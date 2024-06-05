@@ -1,0 +1,16 @@
+//sfz instrument
+//2020-12-29
+//flicked lyre
+<control>
+<global>
+
+<group>
+ampeg_attack=0
+ampeg_release=3.5
+
+<region> sample=../samples/original/FlickedLiar-D4-3-comp.wav lokey=36 hikey=84 pitch_keycenter=62 seq_length=3 seq_position=1 lovel=0 hivel=127
+
+<region> sample=../samples/original/FlickedLiar-D4-1-comp.wav lokey=36 hikey=84 pitch_keycenter=62 seq_length=3 seq_position=2 lovel=0 hivel=127
+
+<region> sample=../samples/original/FlickedLiar-D4-2-comp.wav lokey=36 hikey=84 pitch_keycenter=62 seq_length=3 seq_position=3 lovel=0 hivel=127
+

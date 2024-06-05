@@ -1,0 +1,14 @@
+//sfz instrument
+//2020-12-29
+//bowed lyre
+<control>
+<global>
+
+<group>
+ampeg_attack=0.5
+ampeg_release=3.5
+
+<region> sample=../samples/original/Bowed-lyre2-comp.wav lokey=36 hikey=72 pitch_keycenter=74 seq_length=2 seq_position=1 lovel=0 hivel=127
+
+<region> sample=../samples/original/Bowed-lyre1-comp.wav lokey=36 hikey=72 pitch_keycenter=74 seq_length=2 seq_position=2 lovel=0 hivel=127
+

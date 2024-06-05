@@ -6,148 +6,50 @@
 // you could `#include <JuceHeader.h>` here instead, to make all your module headers visible.
 #include "JuceHeader.h"
 
-
-struct SineWaveSound final : public SynthesiserSound
-{
-    bool appliesToNote (int /*midiNoteNumber*/) override    { return true; }
-    bool appliesToChannel (int /*midiChannel*/) override    { return true; }
-};
-
-struct SineWaveVoice final : public SynthesiserVoice
-{
-    bool canPlaySound (SynthesiserSound* sound) override
-    {
-        return dynamic_cast<SineWaveSound*> (sound) != nullptr;
-    }
-
-    void startNote (int midiNoteNumber, float velocity,
-                    SynthesiserSound*, int /*currentPitchWheelPosition*/) override
-    {
-        currentAngle = 0.0;
-        level = velocity * 0.15;
-        tailOff = 0.0;
-
-        auto cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-        auto cyclesPerSample = cyclesPerSecond / getSampleRate();
-
-        angleDelta = cyclesPerSample * MathConstants<double>::twoPi;
-    }
-
-    void stopNote (float /*velocity*/, bool allowTailOff) override
-    {
-        if (allowTailOff)
-        {
-            // start a tail-off by setting this flag. The render callback will pick up on
-            // this and do a fade out, calling clearCurrentNote() when it's finished.
-
-            if (approximatelyEqual (tailOff, 0.0)) // we only need to begin a tail-off if it's not already doing so - the
-                tailOff = 1.0;                     // stopNote method could be called more than once.
-        }
-        else
-        {
-            // we're being told to stop playing immediately, so reset everything..
-            clearCurrentNote();
-            angleDelta = 0.0;
-        }
-    }
-
-    void pitchWheelMoved (int /*newValue*/) override                              {}
-    void controllerMoved (int /*controllerNumber*/, int /*newValue*/) override    {}
-
-    void renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override
-    {
-        if (! approximatelyEqual (angleDelta, 0.0))
-        {
-            if (tailOff > 0.0)
-            {
-                while (--numSamples >= 0)
-                {
-                    auto currentSample = (float) (std::sin (currentAngle) * level * tailOff);
-
-                    for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                        outputBuffer.addSample (i, startSample, currentSample);
-
-                    currentAngle += angleDelta;
-                    ++startSample;
-
-                    tailOff *= 0.99;
-
-                    if (tailOff <= 0.005)
-                    {
-                        clearCurrentNote();
-
-                        angleDelta = 0.0;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                while (--numSamples >= 0)
-                {
-                    auto currentSample = (float) (std::sin (currentAngle) * level);
-
-                    for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                        outputBuffer.addSample (i, startSample, currentSample);
-
-                    currentAngle += angleDelta;
-                    ++startSample;
-                }
-            }
-        }
-    }
-
-    using SynthesiserVoice::renderNextBlock;
-
-private:
-    double currentAngle = 0.0, angleDelta = 0.0, level = 0.0, tailOff = 0.0;
-};
-
 struct SynthAudioSource final : public AudioSource
 {
-    SynthAudioSource (MidiKeyboardState& keyState)  : keyboardState (keyState)
+    SynthAudioSource (MidiKeyboardState& keyState, const juce::String& sfzPath)
+        : keyboardState (keyState)
     {
-        // Add some voices to our synth, to play the sounds..
-        for (auto i = 0; i < 4; ++i)
-        {
-            synth.addVoice (new SineWaveVoice());   // These voices will play our custom sine-wave sounds..
-            synth.addVoice (new SamplerVoice());    // and these ones play the sampled sounds
+        formatManager.registerBasicFormats();
+        for (int i = 0; i < 128; ++i) {
+            synth.addVoice(new sfzero::Voice());
         }
 
-        // ..and add a sound for them to play...
-        setUsingSineWaveSound();
+        loadFile(sfzPath);
     }
 
-    void setUsingSineWaveSound()
+    void loadFile(const juce::String& sfzPath)
     {
+        DBG("Loading sf2|sfz");
         synth.clearSounds();
-        synth.addSound (new SineWaveSound());
-    }
+        auto sfzFile = File(sfzPath);
 
-    void setUsingSampledSound()
-    {
-        // WavAudioFormat wavFormat;
+        double loadProgress = 0;
+        synth.clearSounds();
 
-        // std::unique_ptr<AudioFormatReader> audioReader (wavFormat.createReaderFor (createAssetInputStream ("cello.wav").release(), true));
+        if (!sfzFile.existsAsFile()) {
+            return;
+        }
 
-        // BigInteger allNotes;
-        // allNotes.setRange (0, 128, true);
+        std::unique_ptr<sfzero::Sound> sound = nullptr;
+        auto extension = sfzFile.getFileExtension();
+        if ((extension == ".sf2") || (extension == ".SF2")) {
+            sound = std::make_unique<sfzero::SF2Sound>(sfzFile);
+        }
+        else {
+            sound = std::make_unique<sfzero::Sound>(sfzFile);
+        }
+        sound->loadRegions();
+        sound->loadSamples(&formatManager, &loadProgress, nullptr);
+        synth.addSound(sound.release());
 
-        // synth.clearSounds();
-        // synth.addSound (new SamplerSound ("demo sound",
-        //                                   *audioReader,
-        //                                   allNotes,
-        //                                   74,   // root midi note
-        //                                   0.1,  // attack time
-        //                                   0.1,  // release time
-        //                                   10.0  // maximum sample length
-        //                                   ));
+        DBG("file loaded!");
     }
 
     void prepareToPlay (int /*samplesPerBlockExpected*/, double sampleRate) override
     {
         midiCollector.reset (sampleRate);
-
         synth.setCurrentPlaybackSampleRate (sampleRate);
     }
 
@@ -184,7 +86,8 @@ struct SynthAudioSource final : public AudioSource
     MidiKeyboardState& keyboardState;
 
     // the synth itself!
-    Synthesiser synth;
+    juce::AudioFormatManager formatManager;
+    sfzero::Synth synth;
 };
 
 
@@ -233,7 +136,7 @@ class MainComponent final : public juce::Component
 {
 public:
     //==============================================================================
-    MainComponent();
+    MainComponent(const juce::String& sfzFile);
     ~MainComponent() override;
 
     //==============================================================================
@@ -242,13 +145,13 @@ public:
 
 private:
     //==============================================================================
+
     juce::AudioDeviceManager audioDeviceManager;
     juce::MidiKeyboardState keyboardState;
     juce::AudioSourcePlayer audioSourcePlayer;
-    SynthAudioSource synthAudioSource        { keyboardState };
-    MidiKeyboardComponent keyboardComponent  { keyboardState, MidiKeyboardComponent::horizontalKeyboard};
-
-    Callback callback { audioSourcePlayer };
+    SynthAudioSource synthAudioSource;
+    MidiKeyboardComponent keyboardComponent;
+    Callback callback;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

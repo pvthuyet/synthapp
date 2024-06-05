@@ -118,6 +118,7 @@ target_link_libraries(synthapp
         juce::juce_gui_extra
         juce::juce_opengl
         juce::juce_video
+        sfzero::SFZero
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

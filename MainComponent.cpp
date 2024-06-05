@@ -1,7 +1,10 @@
 #include "MainComponent.h"
 
 //==============================================================================
-MainComponent::MainComponent()
+MainComponent::MainComponent(const juce::String& sfzFile)
+    : synthAudioSource(keyboardState, sfzFile),
+      keyboardComponent(keyboardState, MidiKeyboardComponent::horizontalKeyboard),
+      callback(audioSourcePlayer)
 {
     addAndMakeVisible (keyboardComponent);
     keyboardComponent.setWantsKeyboardFocus(true);
@@ -33,5 +36,5 @@ void MainComponent::paint (juce::Graphics& g)
 
 void MainComponent::resized()
 {
-    keyboardComponent   .setBounds (8, 96, getWidth() - 16, 64);
+    keyboardComponent.setBounds (8, 96, getWidth() - 16, 64);
 }
