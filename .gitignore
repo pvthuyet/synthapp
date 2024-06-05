@@ -1,3 +1,5 @@
 JUCE
 build
 .vscode
+out
+.vs
