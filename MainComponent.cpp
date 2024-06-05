@@ -17,7 +17,7 @@ MainComponent::MainComponent(const juce::String& sfzFile)
     auto devs = juce::MidiInput::getAvailableDevices();
 
     for (auto d : devs) {
-        DBG(d.name << ", " << d.identifier);
+        DBG("Midi input device: " << d.name << ", " << d.identifier);
         audioDeviceManager.setMidiInputDeviceEnabled(d.name, true);
         audioDeviceManager.addMidiInputDeviceCallback(d.identifier, &(synthAudioSource.midiCollector));
     }

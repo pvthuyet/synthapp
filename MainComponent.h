@@ -21,7 +21,7 @@ struct SynthAudioSource final : public AudioSource
 
     void loadFile(const juce::String& sfzPath)
     {
-        DBG("Loading sf2|sfz");
+        DBG("Loading " << sfzPath);
         synth.clearSounds();
         auto sfzFile = File(sfzPath);
 
