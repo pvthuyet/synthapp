@@ -141,6 +141,7 @@ public:
 
     //==============================================================================
     void paint (juce::Graphics&) override;
+    void resized() override;
 
 private:
     //==============================================================================
@@ -149,6 +150,7 @@ private:
     juce::MidiKeyboardState keyboardState;
     juce::AudioSourcePlayer audioSourcePlayer;
     SynthAudioSource synthAudioSource;
+    MidiKeyboardComponent keyboardComponent;
     Callback callback;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
