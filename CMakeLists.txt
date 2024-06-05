@@ -27,6 +27,14 @@ project(CONSOLE_SYNTH_APP VERSION 0.0.1)
 # or
 add_subdirectory(JUCE)                      # If you've put JUCE in a subdirectory called JUCE
 
+set(SFZERO_MODULES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SFZero)
+set(SFZERO_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SFZero)
+juce_add_modules(
+    INSTALL_PATH "include/JUCE-${JUCE-VERSION}/modules"
+    ALIAS_NAMESPACE sfzero
+    SFZero
+)
+
 # `juce_add_console_app` adds an executable target with the name passed as the first argument
 # (synthapp here). This target is a normal CMake target, but has a lot of extra properties
 # set up by default. This function accepts many optional arguments. Check the readme at
@@ -79,10 +87,14 @@ target_compile_definitions(synthapp
 # resolved automatically. If you'd generated a binary data target above, you would need to link to
 # it here too. This is a standard CMake command.
 
+target_include_directories(synthapp PUBLIC ${SFZERO_MODULES_DIR})
 target_link_libraries(synthapp
     PRIVATE
         # ConsoleAppData            # If you'd created a binary data target, you'd link to it here
         juce::juce_core
+        juce::juce_audio_basics
+        juce::juce_audio_formats
+        sfzero::SFZero
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags)
