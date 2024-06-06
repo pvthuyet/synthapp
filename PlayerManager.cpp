@@ -36,7 +36,7 @@ void SynthAudioSource::loadFile(const juce::String& sfzPath)
     sound->loadSamples(&formatManager, &loadProgress, nullptr);
     synth.addSound(sound.release());
 
-    std::cout << "file loaded successfully" << std::endl;
+    std::cout << "  ====> file loaded successfully" << std::endl;
     std::cout.flush();
 }
 
@@ -44,6 +44,8 @@ void SynthAudioSource::prepareToPlay (int /*samplesPerBlockExpected*/, double sa
 {
     midiCollector.reset (sampleRate);
     synth.setCurrentPlaybackSampleRate (sampleRate);
+    std::cout << "prepareToPlay - sampleRate " << sampleRate << std::endl;
+    std::cout.flush();
 }
 
 void SynthAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -115,9 +117,10 @@ PlayerManager::PlayerManager(const juce::String& sfzFile)
     }
     else {
         for (auto dev : devices) {
-            std::cout << "Connect to midi input device: " << dev.name << ", " << dev.identifier << std::endl;
-            audioDeviceManager.setMidiInputDeviceEnabled(dev.name, true);
+            std::cout << "Trying connect to midi input device: " << dev.identifier << std::endl;
+            audioDeviceManager.setMidiInputDeviceEnabled(dev.identifier, true);
             audioDeviceManager.addMidiInputDeviceCallback(dev.identifier, &(synthAudioSource.midiCollector));
+            std::cout << "  ====> " << dev.identifier << " is " << (audioDeviceManager.isMidiInputEnabled(dev.identifier) ? "enabled and connect successfully" : "disabled and connect failure") << std::endl;
         }
     }
 
