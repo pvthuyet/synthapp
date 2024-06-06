@@ -115,7 +115,7 @@ PlayerManager::PlayerManager(const juce::String& sfzFile)
     }
     else {
         for (auto dev : devices) {
-            std::cout << "Midi input device: " << dev.name << ", " << dev.identifier;
+            std::cout << "Connect to midi input device: " << dev.name << ", " << dev.identifier << std::endl;
             audioDeviceManager.setMidiInputDeviceEnabled(dev.name, true);
             audioDeviceManager.addMidiInputDeviceCallback(dev.identifier, &(synthAudioSource.midiCollector));
         }
