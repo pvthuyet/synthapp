@@ -3,3 +3,5 @@ build
 .vscode
 out
 .vs
+outx86
+outx64

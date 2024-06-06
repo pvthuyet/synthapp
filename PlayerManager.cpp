@@ -13,7 +13,7 @@ SynthAudioSource::SynthAudioSource (MidiKeyboardState& keyState, const juce::Str
 
 void SynthAudioSource::loadFile(const juce::String& sfzPath)
 {
-    DBG("Loading " << sfzPath);
+    std::cout << "Loading file: " << sfzPath << std::endl;
     synth.clearSounds();
     auto sfzFile = File(sfzPath);
 
@@ -36,7 +36,8 @@ void SynthAudioSource::loadFile(const juce::String& sfzPath)
     sound->loadSamples(&formatManager, &loadProgress, nullptr);
     synth.addSound(sound.release());
 
-    DBG("file loaded!");
+    std::cout << "file loaded successfully" << std::endl;
+    std::cout.flush();
 }
 
 void SynthAudioSource::prepareToPlay (int /*samplesPerBlockExpected*/, double sampleRate)
@@ -109,16 +110,18 @@ PlayerManager::PlayerManager(const juce::String& sfzFile)
 
     auto devices = juce::MidiInput::getAvailableDevices();
     if (devices.isEmpty()) {
-        DBG("There is no Midi keyboard input");
+        std::cout << "There is no Midi keyboard input\n";
         audioDeviceManager.addMidiInputDeviceCallback({}, &(synthAudioSource.midiCollector));
     }
     else {
         for (auto dev : devices) {
-            DBG("Midi input device: " << dev.name << ", " << dev.identifier);
+            std::cout << "Midi input device: " << dev.name << ", " << dev.identifier;
             audioDeviceManager.setMidiInputDeviceEnabled(dev.name, true);
             audioDeviceManager.addMidiInputDeviceCallback(dev.identifier, &(synthAudioSource.midiCollector));
         }
     }
+
+    std::cout.flush();
 }
 
 PlayerManager::~PlayerManager()
