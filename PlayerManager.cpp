@@ -8,10 +8,10 @@ SynthAudioSource::SynthAudioSource (MidiKeyboardState& keyState, const juce::Str
         synth.addVoice(new sfzero::Voice());
     }
 
-    loadFile(sfzPath);
+    juce::Thread::launch([this, sfzPath](){ loadFile(sfzPath); });
 }
 
-void SynthAudioSource::loadFile(const juce::String& sfzPath)
+void SynthAudioSource::loadFile(const juce::String sfzPath)
 {
     std::cout << "Loading file: " << sfzPath << std::endl;
     synth.clearSounds();

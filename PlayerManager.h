@@ -4,7 +4,7 @@
 struct SynthAudioSource final : public AudioSource
 {
     SynthAudioSource (MidiKeyboardState& keyState, const juce::String& sfzPath);
-    void loadFile(const juce::String& sfzPath);
+    void loadFile(const juce::String sfzPath);
 
     void prepareToPlay (int /*samplesPerBlockExpected*/, double sampleRate) override;
     void releaseResources() override {}
