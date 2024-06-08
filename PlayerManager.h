@@ -52,6 +52,8 @@ public:
     PlayerManager(const juce::String& sfzFile);
     ~PlayerManager();
 
+    juce::MidiKeyboardState& getKeyboardState() { return keyboardState; }
+
 private:
     juce::AudioDeviceManager audioDeviceManager;
     juce::MidiKeyboardState keyboardState;
