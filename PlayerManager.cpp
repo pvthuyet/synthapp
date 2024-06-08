@@ -16,11 +16,10 @@ void SynthAudioSource::loadFile(const juce::String sfzPath)
     std::cout << "Loading file: " << sfzPath << std::endl;
     synth.clearSounds();
     auto sfzFile = File(sfzPath);
-
     double loadProgress = 0;
-    synth.clearSounds();
 
     if (!sfzFile.existsAsFile()) {
+        std::cout << "File doesn't exist\n";
         return;
     }
 

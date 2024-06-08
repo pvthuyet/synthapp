@@ -18,14 +18,18 @@ public:
     //==============================================================================
     void initialise (const juce::String& commandLine) override
     {
-        playerManager = std::make_unique<PlayerManager>(commandLine);
+        auto filePath = commandLine.unquoted();
+        playerManager = std::make_unique<PlayerManager>(filePath);
+#if SHOW_GUI == 1
         mainWindow = std::make_unique<MainWindow>(getApplicationName(), *playerManager);
+#endif
     }
 
     void shutdown() override
     {
-        // Add your application's shutdown code here..
+#if SHOW_GUI == 1
         mainWindow = nullptr; // (deletes our window)
+#endif
         playerManager = nullptr;
     }
 
@@ -93,7 +97,9 @@ public:
 
 private:
     std::unique_ptr<PlayerManager> playerManager;
+#if SHOW_GUI == 1
     std::unique_ptr<MainWindow> mainWindow;
+#endif
 };
 
 //==============================================================================

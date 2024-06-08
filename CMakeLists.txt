@@ -17,15 +17,8 @@ cmake_minimum_required(VERSION 3.22)
 
 project(SYNTH_APP_PLAYER VERSION 0.0.1)
 
-option(BUILD_X86 "Build x86" OFF)
-
-IF (BUILD_X86)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-ENDIF()
-
-MESSAGE(STATUS "*********** CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
-MESSAGE(STATUS "*********** CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+option(ENABLE_GUI "Show virtual keyboard GUI" 1)
+MESSAGE(STATUS "*********** ENABLE_GUI: ${ENABLE_GUI}")
 
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
 # target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
@@ -95,7 +88,11 @@ target_compile_definitions(synthapp
         JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_gui_app` call
         JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:synthapp,JUCE_PRODUCT_NAME>"
         JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:synthapp,JUCE_VERSION>"
-        JUCE_DISPLAY_SPLASH_SCREEN=0)
+        JUCE_DISPLAY_SPLASH_SCREEN=0
+        JUCE_USE_FLAC=1
+        JUCE_USE_OGGVORBIS=1
+        SHOW_GUI=${ENABLE_GUI}
+        )
 
 # If your target needs extra binary assets, you can add them here. The first argument is the name of
 # a new static library target that will include all the binary resources. There is an optional
