@@ -3,8 +3,8 @@
 
 struct SynthAudioSource final : public AudioSource
 {
-    SynthAudioSource (MidiKeyboardState& keyState, const juce::String& sfzPath);
-    void loadFile(const juce::String& sfzPath);
+    SynthAudioSource (MidiKeyboardState& keyState);
+    void loadFile(const juce::String sfzPath);
 
     void prepareToPlay (int /*samplesPerBlockExpected*/, double sampleRate) override;
     void releaseResources() override {}
@@ -51,6 +51,8 @@ class PlayerManager final
 public:
     PlayerManager(const juce::String& sfzFile);
     ~PlayerManager();
+
+    juce::MidiKeyboardState& getKeyboardState() { return keyboardState; }
 
 private:
     juce::AudioDeviceManager audioDeviceManager;

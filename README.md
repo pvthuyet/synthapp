@@ -15,12 +15,20 @@ sudo apt install libasound2-dev libjack-jackd2-dev \
     libglu1-mesa-dev mesa-common-dev
 ```  
 ## How to build
-* ./buid.sh  
+#### Console app
+```
+./buid.sh clean
+```
+#### GUI app
+```
+cmake -B build -S . -DSHOW_GUI=1
+cmake --build build --target all --config Release
+```
 
 ## How to run
 ```
-binaries/Linux/synthapp_x86 ./soundfonts/Clarinet.sf2
-binaries/Linux/synthapp_x86 ./soundfonts/952588_KitLyreV2_MarkReuter/Kit_Lyre/instruments/firelyre.sfz
+./synthapp "./soundfonts/Clarinet.sf2"
+./synthapp "./soundfonts/952588_KitLyreV2_MarkReuter/Kit_Lyre/instruments/firelyre.sfz"
 ```
   
-![](./binaries/Linux/synthapp.png)
+![](./doc/synthapp.png)

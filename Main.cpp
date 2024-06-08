@@ -1,3 +1,4 @@
+#include "MainComponent.h"
 #include "PlayerManager.h"
 
 //==============================================================================
@@ -17,14 +18,19 @@ public:
     //==============================================================================
     void initialise (const juce::String& commandLine) override
     {
-        playerManager = std::make_unique<PlayerManager>(commandLine);
+        auto filePath = commandLine.unquoted();
+        playerManager = std::make_unique<PlayerManager>(filePath);
+#if DISPLAY_GUI
+        mainWindow = std::make_unique<MainWindow>(getApplicationName(), *playerManager);
+#endif
     }
 
     void shutdown() override
     {
-        // Add your application's shutdown code here..
-
-        playerManager = nullptr; // (deletes our window)
+#if DISPLAY_GUI
+        mainWindow = nullptr; // (deletes our window)
+#endif
+        playerManager = nullptr;
     }
 
     //==============================================================================
@@ -43,8 +49,57 @@ public:
         juce::ignoreUnused (commandLine);
     }
 
+    //==============================================================================
+    /*
+        This class implements the desktop window that contains an instance of
+        our MainComponent class.
+    */
+    class MainWindow final : public juce::DocumentWindow
+    {
+    public:
+        explicit MainWindow (juce::String name, PlayerManager& player)
+            : DocumentWindow (name,
+                              juce::Desktop::getInstance().getDefaultLookAndFeel()
+                                                          .findColour (ResizableWindow::backgroundColourId),
+                              DocumentWindow::allButtons)
+        {
+            setUsingNativeTitleBar (true);
+            setContentOwned (new MainComponent(player), true);
+
+           #if JUCE_IOS || JUCE_ANDROID
+            setFullScreen (true);
+           #else
+            setResizable (true, true);
+            centreWithSize (getWidth(), getHeight());
+           #endif
+
+            setVisible (true);
+        }
+
+        void closeButtonPressed() override
+        {
+            // This is called when the user tries to close this window. Here, we'll just
+            // ask the app to quit when this happens, but you can change this to do
+            // whatever you need.
+            JUCEApplication::getInstance()->systemRequestedQuit();
+        }
+
+        /* Note: Be careful if you override any DocumentWindow methods - the base
+           class uses a lot of them, so by overriding you might break its functionality.
+           It's best to do all your work in your content component instead, but if
+           you really have to override any DocumentWindow methods, make sure your
+           subclass also calls the superclass's method.
+        */
+
+    private:
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
+    };
+
 private:
     std::unique_ptr<PlayerManager> playerManager;
+#if DISPLAY_GUI
+    std::unique_ptr<MainWindow> mainWindow;
+#endif
 };
 
 //==============================================================================

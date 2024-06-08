@@ -1,10 +1,9 @@
-export LD_LIBRARY_PATH=/usr/lib/i386-linux-gnu
+BUILD=$(pwd)/build/
+if [ "$1" = "clean" ]; then
+    echo "Remove build folder: $BUILD"
+    rm -rf $BUILD
+    echo "******************************"
+fi
 
-echo "***************** 32 bit building ********************"
-cmake -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchain-i386-linux-gnu.cmake -DBUILD_X86=ON -B outx86 -S .
-cmake --build outx86
-
-echo
-echo "***************** 64 bit building ********************"
-cmake -B outx64 -S .
-cmake --build outx64
+cmake -B $BUILD -S . -DCMAKE_BUILD_TYPE:STRING=Release
+cmake --build $BUILD --config Release --target all --clean-first
