@@ -54,3 +54,7 @@ namespace ProjectInfo
     const int          versionNumber  = 0x10000;
 }
 #endif
+
+#if ! defined (DISPLAY_GUI)
+#define DISPLAY_GUI 1
+#endif

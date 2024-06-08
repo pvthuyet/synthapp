@@ -1,19 +1,20 @@
 #include "PlayerManager.h"
 
-SynthAudioSource::SynthAudioSource (MidiKeyboardState& keyState, const juce::String& sfzPath)
+SynthAudioSource::SynthAudioSource (MidiKeyboardState& keyState)
     : keyboardState (keyState)
 {
     formatManager.registerBasicFormats();
     for (int i = 0; i < 128; ++i) {
         synth.addVoice(new sfzero::Voice());
     }
-
-    juce::Thread::launch([this, sfzPath](){ loadFile(sfzPath); });
 }
 
 void SynthAudioSource::loadFile(const juce::String sfzPath)
 {
-    std::cout << "Loading file: " << sfzPath << std::endl;
+    std::cout << sfzPath << std::endl;
+    std::cout << "  Loading ...\n";
+    std::cout.flush();
+
     synth.clearSounds();
     auto sfzFile = File(sfzPath);
     double loadProgress = 0;
@@ -44,7 +45,6 @@ void SynthAudioSource::prepareToPlay (int /*samplesPerBlockExpected*/, double sa
     midiCollector.reset (sampleRate);
     synth.setCurrentPlaybackSampleRate (sampleRate);
     std::cout << "prepareToPlay - sampleRate " << sampleRate << std::endl;
-    std::cout.flush();
 }
 
 void SynthAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -100,7 +100,7 @@ void Callback::audioDeviceStopped()
 //==============================================================================
 
 PlayerManager::PlayerManager(const juce::String& sfzFile)
-    : synthAudioSource(keyboardState, sfzFile),
+    : synthAudioSource(keyboardState),
       callback(audioSourcePlayer)
 {
     audioSourcePlayer.setSource (&synthAudioSource);
@@ -119,11 +119,13 @@ PlayerManager::PlayerManager(const juce::String& sfzFile)
             std::cout << "Trying connect to midi input device: " << dev.identifier << std::endl;
             audioDeviceManager.setMidiInputDeviceEnabled(dev.identifier, true);
             audioDeviceManager.addMidiInputDeviceCallback(dev.identifier, &(synthAudioSource.midiCollector));
-            std::cout << "  ====> " << dev.identifier << " is " << (audioDeviceManager.isMidiInputEnabled(dev.identifier) ? "enabled and connect successfully" : "disabled and connect failure") << std::endl;
+            std::cout << "  ====> " << dev.identifier << " is " << (audioDeviceManager.isMidiInputDeviceEnabled(dev.identifier) ? "enabled and connect successfully" : "disabled and connect failure") << std::endl;
         }
     }
 
     std::cout.flush();
+
+    juce::Thread::launch([this, sfzFile]() { synthAudioSource.loadFile(sfzFile); });
 }
 
 PlayerManager::~PlayerManager()

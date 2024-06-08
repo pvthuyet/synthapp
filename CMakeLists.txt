@@ -17,8 +17,8 @@ cmake_minimum_required(VERSION 3.22)
 
 project(SYNTH_APP_PLAYER VERSION 0.0.1)
 
-option(ENABLE_GUI "Show virtual keyboard GUI" 1)
-MESSAGE(STATUS "*********** ENABLE_GUI: ${ENABLE_GUI}")
+option(SHOW_GUI "Display GUI" 0)
+MESSAGE(STATUS "*********** SHOW_GUI: ${SHOW_GUI}")
 
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
 # target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
@@ -91,7 +91,7 @@ target_compile_definitions(synthapp
         JUCE_DISPLAY_SPLASH_SCREEN=0
         JUCE_USE_FLAC=1
         JUCE_USE_OGGVORBIS=1
-        SHOW_GUI=${ENABLE_GUI}
+        DISPLAY_GUI=${SHOW_GUI}
         )
 
 # If your target needs extra binary assets, you can add them here. The first argument is the name of

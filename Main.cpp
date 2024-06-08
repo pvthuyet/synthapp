@@ -20,14 +20,14 @@ public:
     {
         auto filePath = commandLine.unquoted();
         playerManager = std::make_unique<PlayerManager>(filePath);
-#if SHOW_GUI == 1
+#if DISPLAY_GUI
         mainWindow = std::make_unique<MainWindow>(getApplicationName(), *playerManager);
 #endif
     }
 
     void shutdown() override
     {
-#if SHOW_GUI == 1
+#if DISPLAY_GUI
         mainWindow = nullptr; // (deletes our window)
 #endif
         playerManager = nullptr;
@@ -97,7 +97,7 @@ public:
 
 private:
     std::unique_ptr<PlayerManager> playerManager;
-#if SHOW_GUI == 1
+#if DISPLAY_GUI
     std::unique_ptr<MainWindow> mainWindow;
 #endif
 };
