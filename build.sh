@@ -6,4 +6,4 @@ if [ "$1" = "clean" ]; then
 fi
 
 cmake -B $BUILD -S . -DCMAKE_BUILD_TYPE:STRING=Release
-cmake --build $BUILD --config Release --target all --clean-first
+cmake --build $BUILD --config Release --target synthapp --clean-first

@@ -32,13 +32,3 @@ cmake --build build --target all --config Release
 ```
   
 ![](./doc/synthapp.png)
-  
-## Limitation
-SFZero libray doens't support to load SFZ files with contents
-```
-//Files to include
-#include "EGLE IN MIC.sfz"
-#include "EGLE RM MIC.sfz"
-```
-  
-![](./doc/limitation.png)
