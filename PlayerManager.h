@@ -1,12 +1,13 @@
 #pragma once
 #include "JuceHeader.h"
+#include "sfizz.hpp"
 
 struct SynthAudioSource final : public juce::AudioSource
 {
     SynthAudioSource (juce::MidiKeyboardState& keyState);
     void loadFile(const juce::String sfzPath);
 
-    void prepareToPlay (int /*samplesPerBlockExpected*/, double sampleRate) override;
+    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override {}
     void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override;
 
@@ -21,7 +22,9 @@ struct SynthAudioSource final : public juce::AudioSource
 
     // the synth itself!
     juce::AudioFormatManager formatManager;
-    sfzero::Synth synth;
+
+    sfz::Sfizz synth;
+    std::atomic_bool sfzFileLoaded = false;
 };
 
 //==============================================================================

@@ -37,6 +37,10 @@ juce_add_modules(
     SFZero
 )
 
+# sfizz
+add_subdirectory(sfizz)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/sfizz/src)
+
 # If your app depends the VST2 SDK, perhaps to host VST2 plugins, CMake needs to be told where
 # to find the SDK on your system. This setup should be done before calling `juce_add_gui_app`.
 
@@ -80,6 +84,9 @@ target_sources(synthapp
 # need that's not on by default, check the module header for the correct flag to set here. These
 # definitions will be visible both to your code, and also the JUCE module code, so for new
 # definitions, pick unique names that are unlikely to collide! This is a standard CMake command.
+
+set_property(TARGET synthapp PROPERTY
+  MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:${CMAKE_BUILD_TYPE}>:${CMAKE_BUILD_TYPE}>")
 
 target_compile_definitions(synthapp
     PRIVATE
@@ -127,6 +134,7 @@ target_link_libraries(synthapp
         juce::juce_opengl
         juce::juce_video
         sfzero::SFZero
+        sfizz::static
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
