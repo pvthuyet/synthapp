@@ -1,5 +1,7 @@
 #include "PlayerManager.h"
 
+using namespace juce;
+
 SynthAudioSource::SynthAudioSource (MidiKeyboardState& keyState)
     : keyboardState (keyState)
 {

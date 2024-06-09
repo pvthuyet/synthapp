@@ -1,23 +1,23 @@
 #pragma once
 #include "JuceHeader.h"
 
-struct SynthAudioSource final : public AudioSource
+struct SynthAudioSource final : public juce::AudioSource
 {
-    SynthAudioSource (MidiKeyboardState& keyState);
+    SynthAudioSource (juce::MidiKeyboardState& keyState);
     void loadFile(const juce::String sfzPath);
 
     void prepareToPlay (int /*samplesPerBlockExpected*/, double sampleRate) override;
     void releaseResources() override {}
-    void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override;
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override;
 
     // this collects real-time midi messages from the midi input device, and
     // turns them into blocks that we can process in our audio callback
-    MidiMessageCollector midiCollector;
+    juce::MidiMessageCollector midiCollector;
 
     // this represents the state of which keys on our on-screen keyboard are held
     // down. When the mouse is clicked on the keyboard component, this object also
     // generates midi messages for this, which we can pass on to our synth.
-    MidiKeyboardState& keyboardState;
+    juce::MidiKeyboardState& keyboardState;
 
     // the synth itself!
     juce::AudioFormatManager formatManager;
@@ -26,22 +26,22 @@ struct SynthAudioSource final : public AudioSource
 
 //==============================================================================
 
-class Callback final : public AudioIODeviceCallback
+class Callback final : public juce::AudioIODeviceCallback
 {
 public:
-    Callback (AudioSourcePlayer& playerIn);
+    Callback (juce::AudioSourcePlayer& playerIn);
 
     void audioDeviceIOCallbackWithContext (const float* const* inputChannelData,
                                            int numInputChannels,
                                            float* const* outputChannelData,
                                            int numOutputChannels,
                                            int numSamples,
-                                           const AudioIODeviceCallbackContext& context) override;
-    void audioDeviceAboutToStart (AudioIODevice* device) override;
+                                           const juce::AudioIODeviceCallbackContext& context) override;
+    void audioDeviceAboutToStart (juce::AudioIODevice* device) override;
     void audioDeviceStopped() override;
 
 private:
-    AudioSourcePlayer& player;
+    juce::AudioSourcePlayer& player;
 };
 
 //==============================================================================

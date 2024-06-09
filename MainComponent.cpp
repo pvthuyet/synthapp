@@ -4,7 +4,7 @@
 //==============================================================================
 MainComponent::MainComponent(PlayerManager& player)
     : mPlayer(player),
-      keyboardComponent(player.getKeyboardState(), MidiKeyboardComponent::horizontalKeyboard)
+      keyboardComponent(player.getKeyboardState(), juce::MidiKeyboardComponent::horizontalKeyboard)
 {
     addAndMakeVisible (keyboardComponent);
     keyboardComponent.setWantsKeyboardFocus(true);
