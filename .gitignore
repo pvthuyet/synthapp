@@ -5,3 +5,5 @@ out
 outx86
 outx64
 .DS_Store
+soundfonts/
+CMakeSettings.json

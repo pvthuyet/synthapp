@@ -29,13 +29,9 @@ MESSAGE(STATUS "*********** SHOW_GUI: ${SHOW_GUI}")
 # or
 add_subdirectory(JUCE)                    # If you've put JUCE in a subdirectory called JUCE
 
-set(SFZERO_MODULES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SFZero)
-set(SFZERO_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SFZero)
-juce_add_modules(
-    INSTALL_PATH "include/JUCE-${JUCE-VERSION}/modules"
-    ALIAS_NAMESPACE sfzero
-    SFZero
-)
+# sfizz
+add_subdirectory(sfizz)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/sfizz/src)
 
 # If your app depends the VST2 SDK, perhaps to host VST2 plugins, CMake needs to be told where
 # to find the SDK on your system. This setup should be done before calling `juce_add_gui_app`.
@@ -53,7 +49,7 @@ juce_add_gui_app(synthapp
     # ICON_SMALL ...
     # DOCUMENT_EXTENSIONS ...           # Specify file extensions that should be associated with this app
     # COMPANY_NAME ...                  # Specify the name of the app's author
-    PRODUCT_NAME "synthapp")     # The name of the final executable, which can differ from the target name
+    PRODUCT_NAME "synthapp")            # The name of the final executable, which can differ from the target name
 
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
 # into your build tree. This should be included with `#include <JuceHeader.h>`. The include path for
@@ -80,6 +76,8 @@ target_sources(synthapp
 # need that's not on by default, check the module header for the correct flag to set here. These
 # definitions will be visible both to your code, and also the JUCE module code, so for new
 # definitions, pick unique names that are unlikely to collide! This is a standard CMake command.
+
+set_property(TARGET synthapp PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 target_compile_definitions(synthapp
     PRIVATE
@@ -126,7 +124,7 @@ target_link_libraries(synthapp
         juce::juce_gui_extra
         juce::juce_opengl
         juce::juce_video
-        sfzero::SFZero
+        sfizz::static
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

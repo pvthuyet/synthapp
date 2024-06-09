@@ -1,12 +1,11 @@
 #include "PlayerManager.h"
 
+using namespace juce;
+
 SynthAudioSource::SynthAudioSource (MidiKeyboardState& keyState)
     : keyboardState (keyState)
 {
     formatManager.registerBasicFormats();
-    for (int i = 0; i < 128; ++i) {
-        synth.addVoice(new sfzero::Voice());
-    }
 }
 
 void SynthAudioSource::loadFile(const juce::String sfzPath)
@@ -15,36 +14,22 @@ void SynthAudioSource::loadFile(const juce::String sfzPath)
     std::cout << "  Loading ...\n";
     std::cout.flush();
 
-    synth.clearSounds();
-    auto sfzFile = File(sfzPath);
-    double loadProgress = 0;
-
-    if (!sfzFile.existsAsFile()) {
-        std::cout << "File doesn't exist\n";
+    if (!synth.loadSfzFile(sfzPath.toStdString())) {
+        std::cerr << "  ====> file loaded failed" << std::endl;
         return;
     }
 
-    std::unique_ptr<sfzero::Sound> sound = nullptr;
-    auto extension = sfzFile.getFileExtension();
-    if ((extension == ".sf2") || (extension == ".SF2")) {
-        sound = std::make_unique<sfzero::SF2Sound>(sfzFile);
-    }
-    else {
-        sound = std::make_unique<sfzero::Sound>(sfzFile);
-    }
-    sound->loadRegions();
-    sound->loadSamples(&formatManager, &loadProgress, nullptr);
-    synth.addSound(sound.release());
-
-    std::cout << "  ====> file loaded successfully" << std::endl;
-    std::cout.flush();
+    std::cout << "  ====> file loaded successfully. " << synth.getNumRegions() << " regions in the SFZ." << std::endl << std::flush;
+    sfzFileLoaded = true;
 }
 
-void SynthAudioSource::prepareToPlay (int /*samplesPerBlockExpected*/, double sampleRate)
+void SynthAudioSource::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
     midiCollector.reset (sampleRate);
-    synth.setCurrentPlaybackSampleRate (sampleRate);
-    std::cout << "prepareToPlay - sampleRate " << sampleRate << std::endl;
+    synth.setSamplesPerBlock(samplesPerBlockExpected);
+    synth.setSampleRate((float)sampleRate);
+    synth.setNumVoices(128);
+    std::cout << "prepareToPlay (samplesPerBlockExpected, sampleRate) = (" << samplesPerBlockExpected << ", " << sampleRate << ")" << std::endl;
 }
 
 void SynthAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -64,7 +49,24 @@ void SynthAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferTo
     keyboardState.processNextMidiBuffer (incomingMidi, 0, bufferToFill.numSamples, true);
 
     // and now get the synth to process the midi events and generate its output.
-    synth.renderNextBlock (*bufferToFill.buffer, incomingMidi, 0, bufferToFill.numSamples);
+    if (sfzFileLoaded) {
+        // Midi dispatching
+        for (auto midi : incomingMidi) {
+            auto msg = midi.getMessage();
+            if (msg.isNoteOn()) {
+                synth.noteOn(0, msg.getNoteNumber(), msg.getVelocity());
+            }
+            else if (msg.isNoteOff()) {
+                synth.noteOff(0, msg.getNoteNumber(), msg.getVelocity());
+            }
+            else if (msg.isController()) {
+                synth.cc(0, msg.getControllerNumber(), msg.getControllerValue());
+            }
+        }
+
+        float* stereoOutput[] = { bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1) };
+        synth.renderBlock(stereoOutput, bufferToFill.numSamples);
+    }    
 }
 
 //==============================================================================
@@ -123,8 +125,7 @@ PlayerManager::PlayerManager(const juce::String& sfzFile)
         }
     }
 
-    std::cout.flush();
-
+    std::cout << std::flush;
     juce::Thread::launch([this, sfzFile]() { synthAudioSource.loadFile(sfzFile); });
 }
 
