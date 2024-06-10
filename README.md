@@ -22,7 +22,7 @@ sudo apt install libasound2-dev libjack-jackd2-dev \
 #### GUI app
 ```
 cmake -B build -S . -DSHOW_GUI=1
-cmake --build build --target all --config Release
+cmake --build build --target synthapp --config Release
 ```
 
 ## How to run
