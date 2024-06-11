@@ -2,8 +2,8 @@ build
 .vscode
 out
 .vs
-outx86
-outx64
+out
+out_gui
 .DS_Store
 soundfonts/
 CMakeSettings.json
