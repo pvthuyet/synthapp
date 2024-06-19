@@ -11,17 +11,32 @@ SynthAudioSource::SynthAudioSource (MidiKeyboardState& keyState)
 void SynthAudioSource::loadFile(const juce::String sfzPath)
 {
     std::cout << sfzPath << std::endl;
-    std::cout << "  Loading ...\n";
     std::cout.flush();
+    fileLoaded = false;
 
-    if (!synth.loadSfzFile(sfzPath.toStdString())) {
-        std::cerr << "  ====> file loaded failed" << std::endl;
-        return;
+    auto ext = juce::File{sfzPath}.getFileExtension();
+    if (ext.equalsIgnoreCase(".sf2") || ext.equalsIgnoreCase(".sf3")) {
+        std::cout << "  Loading SF2 ...\n";
+        fileLoaded = fluidSynth.load(sfzPath);
+        isSF2 = true;
+    }
+    else if (ext.equalsIgnoreCase(".sfz")){
+        std::cout << "  Loading SFZ ...\n";
+        fileLoaded = synth.loadSfzFile(sfzPath.toStdString());
+        isSFZ = true;
     }
 
-    std::cout << "  ====> file loaded successfully. " << synth.getNumRegions() << " regions in the SFZ." << std::endl << std::flush;
-
-    sfzFileLoaded = true;
+    if (fileLoaded)
+        std::cout << "  ====> file loaded successfully.";
+    else
+        std::cout << "  ====> file loaded failed.";
+    
+    if (isSFZ)
+        std::cout << " " << synth.getNumRegions() << " SFZ regions\n";
+    else 
+        std::cout << std::endl;
+    
+    std::cout << std::flush;
 }
 
 void SynthAudioSource::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
@@ -52,7 +67,11 @@ void SynthAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferTo
 #endif
 
     // and now get the synth to process the midi events and generate its output.
-    if (sfzFileLoaded) {
+    if (fileLoaded && isSF2) {
+        fluidSynth.playingMidi(incomingMidi);
+        fluidSynth.renderBlock(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
+    }
+    else if (fileLoaded && isSFZ) {
         // Midi dispatching
         for (auto midi : incomingMidi) {
             auto msg = midi.getMessage();
@@ -82,7 +101,7 @@ void SynthAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferTo
 
         float* stereoOutput[] = { bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1) };
         synth.renderBlock(stereoOutput, bufferToFill.numSamples);
-    }    
+    }
 }
 
 //==============================================================================

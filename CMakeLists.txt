@@ -29,6 +29,11 @@ MESSAGE(STATUS "*********** SHOW_GUI: ${SHOW_GUI}")
 # or
 add_subdirectory(JUCE)                    # If you've put JUCE in a subdirectory called JUCE
 
+# FluidLite
+add_subdirectory(FluidLite)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/FluidLite/include)
+include(${CMAKE_CURRENT_SOURCE_DIR}/FluidLite/aliases.cmake)
+
 # sfizz
 add_subdirectory(sfizz)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/sfizz/src)
@@ -68,7 +73,9 @@ target_sources(synthapp
     PRIVATE
         Main.cpp
         MainComponent.cpp
-        PlayerManager.cpp)
+        PlayerManager.cpp
+        FluidSynth.cpp
+        )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
 # project, these might be passed in the 'Preprocessor Definitions' field. JUCE modules also make use
@@ -125,6 +132,7 @@ target_link_libraries(synthapp
         juce::juce_opengl
         juce::juce_video
         sfizz::static
+        fluidlite::fluidlite-static
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

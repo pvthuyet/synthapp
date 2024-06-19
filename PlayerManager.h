@@ -1,6 +1,7 @@
 #pragma once
 #include "JuceHeader.h"
 #include "sfizz.hpp"
+#include "FluidSynth.h"
 
 struct SynthAudioSource final : public juce::AudioSource
 {
@@ -23,8 +24,13 @@ struct SynthAudioSource final : public juce::AudioSource
     // the synth itself!
     juce::AudioFormatManager formatManager;
 
+    bool fileLoaded = false;
+
+    bool isSFZ = false;
     sfz::Sfizz synth;
-    std::atomic_bool sfzFileLoaded = false;
+
+    bool isSF2 = false;
+    FluidSynth fluidSynth;
 };
 
 //==============================================================================
