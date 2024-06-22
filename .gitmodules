@@ -7,3 +7,6 @@
 [submodule "FluidLite"]
 	path = FluidLite
 	url = https://github.com/divideconcept/FluidLite.git
+[submodule "fluidsynth"]
+	path = fluidsynth
+	url = https://github.com/FluidSynth/fluidsynth.git

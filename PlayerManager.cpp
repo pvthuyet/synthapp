@@ -8,43 +8,23 @@ SynthAudioSource::SynthAudioSource (MidiKeyboardState& keyState)
     formatManager.registerBasicFormats();
 }
 
-void SynthAudioSource::loadFile(const juce::String sfzPath)
+void SynthAudioSource::loadFile(const juce::String filePath)
 {
-    std::cout << sfzPath << std::endl;
-    std::cout.flush();
-    fileLoaded = false;
+    std::cout << filePath << std::endl;
+    auto ext = juce::File{filePath}.getFileExtension();
 
-    auto ext = juce::File{sfzPath}.getFileExtension();
-    if (ext.equalsIgnoreCase(".sf2") || ext.equalsIgnoreCase(".sf3")) {
-        std::cout << "  Loading SF2 ...\n";
-        fileLoaded = fluidSynth.load(sfzPath);
-        isSF2 = true;
+    if (ext.equalsIgnoreCase(".sfz") && sfzSynth.load(filePath)) {
+        sfType = SoundFontType::sfz;
     }
-    else if (ext.equalsIgnoreCase(".sfz")){
-        std::cout << "  Loading SFZ ...\n";
-        fileLoaded = synth.loadSfzFile(sfzPath.toStdString());
-        isSFZ = true;
+    else if (ext.equalsIgnoreCase(".sf2") && sf2Synth.load(filePath)) {
+        sfType = SoundFontType::sf2;
     }
-
-    if (fileLoaded)
-        std::cout << "  ====> file loaded successfully.";
-    else
-        std::cout << "  ====> file loaded failed.";
-    
-    if (isSFZ)
-        std::cout << " " << synth.getNumRegions() << " SFZ regions\n";
-    else 
-        std::cout << std::endl;
-    
-    std::cout << std::flush;
 }
 
 void SynthAudioSource::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
     midiCollector.reset (sampleRate);
-    synth.setSamplesPerBlock(samplesPerBlockExpected);
-    synth.setSampleRate((float)sampleRate);
-    synth.setNumVoices(128);
+    sfzSynth.prepareToPlay(samplesPerBlockExpected, sampleRate);
     std::cout << "prepareToPlay (samplesPerBlockExpected, sampleRate) = (" << samplesPerBlockExpected << ", " << sampleRate << ")" << std::endl;
 }
 
@@ -67,40 +47,19 @@ void SynthAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferTo
 #endif
 
     // and now get the synth to process the midi events and generate its output.
-    if (fileLoaded && isSF2) {
-        fluidSynth.playingMidi(incomingMidi);
-        fluidSynth.renderBlock(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
-    }
-    else if (fileLoaded && isSFZ) {
-        // Midi dispatching
-        for (auto midi : incomingMidi) {
-            auto msg = midi.getMessage();
-
-            if (msg.isNoteOn()) {
-                synth.noteOn(0, msg.getNoteNumber(), msg.getVelocity());
-            }
-            else if (msg.isNoteOff()) {
-                synth.noteOff(0, msg.getNoteNumber(), msg.getVelocity());
-            }
-            else if (msg.isController()) {
-                synth.cc(0, msg.getControllerNumber(), msg.getControllerValue());
-            }
-            else if (msg.isProgramChange()) {
-                synth.programChange(0, msg.getProgramChangeNumber());
-            }
-            else if (msg.isPitchWheel()) {
-                synth.pitchWheel(0, msg.getPitchWheelValue());
-            }
-            else if (msg.isAftertouch()) {
-                synth.polyAftertouch(0, msg.getNoteNumber(), msg.getAfterTouchValue());
-            }
-            else if (msg.isChannelPressure()) {
-                synth.channelAftertouch(0, msg.getAfterTouchValue());
-            }
-        }
-
-        float* stereoOutput[] = { bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1) };
-        synth.renderBlock(stereoOutput, bufferToFill.numSamples);
+    switch (sfType)
+    {
+    case SoundFontType::none:
+        break;
+    case SoundFontType::sf2:
+        sf2Synth.playingMidi(incomingMidi);
+        break;
+    case SoundFontType::sfz:
+        sfzSynth.playingMidi(incomingMidi);
+        sfzSynth.renderBlock(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
+        break;
+    default:
+        break;
     }
 }
 
