@@ -8,28 +8,23 @@ SynthAudioSource::SynthAudioSource (MidiKeyboardState& keyState)
     formatManager.registerBasicFormats();
 }
 
-void SynthAudioSource::loadFile(const juce::String sfzPath)
+void SynthAudioSource::loadFile(const juce::String filePath)
 {
-    std::cout << sfzPath << std::endl;
-    std::cout << "  Loading ...\n";
-    std::cout.flush();
+    std::cout << filePath << std::endl;
+    auto ext = juce::File{filePath}.getFileExtension();
 
-    if (!synth.loadSfzFile(sfzPath.toStdString())) {
-        std::cerr << "  ====> file loaded failed" << std::endl;
-        return;
+    if (ext.equalsIgnoreCase(".sfz") && sfzSynth.load(filePath)) {
+        sfType = SoundFontType::sfz;
     }
-
-    std::cout << "  ====> file loaded successfully. " << synth.getNumRegions() << " regions in the SFZ." << std::endl << std::flush;
-
-    sfzFileLoaded = true;
+    else if (ext.equalsIgnoreCase(".sf2") && sf2Synth.load(filePath)) {
+        sfType = SoundFontType::sf2;
+    }
 }
 
 void SynthAudioSource::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
     midiCollector.reset (sampleRate);
-    synth.setSamplesPerBlock(samplesPerBlockExpected);
-    synth.setSampleRate((float)sampleRate);
-    synth.setNumVoices(128);
+    sfzSynth.prepareToPlay(samplesPerBlockExpected, sampleRate);
     std::cout << "prepareToPlay (samplesPerBlockExpected, sampleRate) = (" << samplesPerBlockExpected << ", " << sampleRate << ")" << std::endl;
 }
 
@@ -52,37 +47,20 @@ void SynthAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferTo
 #endif
 
     // and now get the synth to process the midi events and generate its output.
-    if (sfzFileLoaded) {
-        // Midi dispatching
-        for (auto midi : incomingMidi) {
-            auto msg = midi.getMessage();
-
-            if (msg.isNoteOn()) {
-                synth.noteOn(0, msg.getNoteNumber(), msg.getVelocity());
-            }
-            else if (msg.isNoteOff()) {
-                synth.noteOff(0, msg.getNoteNumber(), msg.getVelocity());
-            }
-            else if (msg.isController()) {
-                synth.cc(0, msg.getControllerNumber(), msg.getControllerValue());
-            }
-            else if (msg.isProgramChange()) {
-                synth.programChange(0, msg.getProgramChangeNumber());
-            }
-            else if (msg.isPitchWheel()) {
-                synth.pitchWheel(0, msg.getPitchWheelValue());
-            }
-            else if (msg.isAftertouch()) {
-                synth.polyAftertouch(0, msg.getNoteNumber(), msg.getAfterTouchValue());
-            }
-            else if (msg.isChannelPressure()) {
-                synth.channelAftertouch(0, msg.getAfterTouchValue());
-            }
-        }
-
-        float* stereoOutput[] = { bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1) };
-        synth.renderBlock(stereoOutput, bufferToFill.numSamples);
-    }    
+    switch (sfType)
+    {
+    case SoundFontType::none:
+        break;
+    case SoundFontType::sf2:
+        sf2Synth.playingMidi(incomingMidi);
+        break;
+    case SoundFontType::sfz:
+        sfzSynth.playingMidi(incomingMidi);
+        sfzSynth.renderBlock(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
+        break;
+    default:
+        break;
+    }
 }
 
 //==============================================================================

@@ -1,11 +1,18 @@
 #pragma once
 #include "JuceHeader.h"
-#include "sfizz.hpp"
+#include "SfzSynth.h"
+#include "Sf2Synth.h"
 
 struct SynthAudioSource final : public juce::AudioSource
 {
+    enum class SoundFontType {
+        none,
+        sf2,
+        sfz
+    };
+
     SynthAudioSource (juce::MidiKeyboardState& keyState);
-    void loadFile(const juce::String sfzPath);
+    void loadFile(const juce::String filePath);
 
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override {}
@@ -23,8 +30,9 @@ struct SynthAudioSource final : public juce::AudioSource
     // the synth itself!
     juce::AudioFormatManager formatManager;
 
-    sfz::Sfizz synth;
-    std::atomic_bool sfzFileLoaded = false;
+    SoundFontType sfType = SoundFontType::none;
+    Sf2Synth sf2Synth;
+    SfzSynth sfzSynth;
 };
 
 //==============================================================================
